@@ -9,6 +9,10 @@ const schema = z.object({
   RESEND_API_KEY: z.string().startsWith("re_"),
   EMAIL_FROM: z.string().min(3),
   APP_URL: z.string().url(),
+  REMINDER_JOB_SECRET: z.preprocess(
+    (value) => (typeof value === "string" && value.trim() === "" ? undefined : value),
+    z.string().min(32, "Use at least 32 characters for the reminder job secret.").optional(),
+  ),
   ENABLE_TEST_ROUTES: z.enum(["true", "false"]).default("false").transform((v) => v === "true"),
   RATE_LIMIT_DISABLED: z.enum(["true", "false"]).default("false").transform((v) => v === "true"),
   LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).default("info"),

@@ -24,6 +24,7 @@ Then in `../to-do-app`, run `npm run dev` (live mode) and open http://localhost:
 | `RESEND_API_KEY` | resend.com → API Keys |
 | `EMAIL_FROM` | `Tasks <onboarding@resend.dev>` while testing (only delivers to your Resend account's email). Verify a domain in Resend to email anyone. |
 | `APP_URL` | Frontend URL, used in email links. `http://localhost:3000` locally. |
+| `REMINDER_JOB_SECRET` | 32+ random characters | Bearer secret used by the scheduled reminder job. Keep it private. |
 | `ENABLE_TEST_ROUTES` | `true` only locally/CI so the contract check can read email tokens. **Never in production.** |
 | `RATE_LIMIT_DISABLED` | `true` only while running the contract check repeatedly. |
 
@@ -34,8 +35,10 @@ The app validates these at startup and refuses to boot if one is missing or malf
 With `ENABLE_TEST_ROUTES=true` and `RATE_LIMIT_DISABLED=true` in `.env`, start the server and run from `../to-do-app`:
 
 ```bash
-npm run contract     # 56 checks
+npm run contract     # 57 checks
 ```
+
+Run `npm run db:migrate` after pulling schema changes. To enable reminders, set `REMINDER_JOB_SECRET` in `.env`, then configure a scheduler to `POST /api/v1/jobs/reminders` about once per minute with `Authorization: Bearer <secret>`. The job processes at most 25 emails per call. In local development, call it manually with the same header to test delivery.
 
 ## Layout
 

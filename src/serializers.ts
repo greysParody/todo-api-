@@ -20,6 +20,9 @@ export function toPublicTodo(todo: Todo) {
     priority: todo.priority,
     // A @db.Date comes back as UTC midnight. Read it back in UTC so it never shifts a day.
     dueDate: todo.dueDate?.toISOString().slice(0, 10) ?? null,
+    dueTime: todo.dueTime,
+    dueTimezone: todo.dueTimezone,
+    reminderPreference: todo.reminderPreference,
     completed: todo.completed,
     completedAt: todo.completedAt?.toISOString() ?? null,
     createdAt: todo.createdAt.toISOString(),

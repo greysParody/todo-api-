@@ -35,3 +35,26 @@ export function PasswordChanged({ name, appUrl }: { name: string; appUrl: string
     />
   );
 }
+
+export function TaskReminder({
+  title,
+  dueAtText,
+  kind,
+  appUrl,
+}: {
+  title: string;
+  dueAtText: string;
+  kind: "at_due" | "thirty_minutes_before";
+  appUrl: string;
+}) {
+  const timing = kind === "at_due" ? "is due now" : "is due in 30 minutes";
+  return (
+    <EmailLayout
+      preview={`${title} ${timing}`}
+      heading="Task reminder"
+      text={`“${title}” ${timing}. Scheduled for ${dueAtText}.`}
+      action={{ label: "Open your tasks", url: `${appUrl}/todos` }}
+      note="You chose to receive this reminder in your Tasks account. You can change reminder settings by editing the task."
+    />
+  );
+}
