@@ -20,6 +20,13 @@ enum TokenType {
   PASSWORD_RESET
 }
 
+enum ReminderPreference {
+  none
+  at_due
+  thirty_minutes_before
+  both
+}
+
 model User {
   id              String    @id @default(uuid()) @db.Uuid
   name            String    @db.VarChar(60)
@@ -37,22 +44,29 @@ model User {
 }
 
 model Todo {
-  id          String    @id @default(uuid()) @db.Uuid
-  userId      String    @map("user_id") @db.Uuid
-  title       String    @db.VarChar(200)
-  description String?
-  priority    Priority  @default(medium)
-  dueDate     DateTime? @map("due_date") @db.Date
-  completed   Boolean   @default(false)
-  completedAt DateTime? @map("completed_at") @db.Timestamptz(3)
-  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt   DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+  id                 String             @id @default(uuid()) @db.Uuid
+  userId             String             @map("user_id") @db.Uuid
+  title              String             @db.VarChar(200)
+  description        String?
+  priority           Priority           @default(medium)
+  dueDate            DateTime?          @map("due_date") @db.Date
+  dueTime            String?            @map("due_time") @db.VarChar(5)
+  dueTimezone        String?            @map("due_timezone") @db.VarChar(64)
+  dueAt              DateTime?          @map("due_at") @db.Timestamptz(3)
+  reminderPreference ReminderPreference @default(none) @map("reminder_preference")
+  reminder30mSentAt  DateTime?          @map("reminder_30m_sent_at") @db.Timestamptz(3)
+  reminderDueSentAt  DateTime?          @map("reminder_due_sent_at") @db.Timestamptz(3)
+  completed          Boolean            @default(false)
+  completedAt        DateTime?          @map("completed_at") @db.Timestamptz(3)
+  createdAt          DateTime           @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt          DateTime           @updatedAt @map("updated_at") @db.Timestamptz(3)
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, completed])
   @@index([userId, dueDate])
   @@index([userId, createdAt])
+  @@index([dueAt, completed])
   @@map("todos")
 }
 

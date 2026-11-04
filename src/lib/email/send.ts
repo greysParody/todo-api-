@@ -5,7 +5,7 @@ import { logger } from "@/lib/logger";
 
 const resend = new Resend(env.RESEND_API_KEY);
 
-export type EmailType = "verify" | "reset" | "notice";
+export type EmailType = "verify" | "reset" | "notice" | "reminder";
 type Recorded = { to: string; type: EmailType; subject: string; token: string | null; sentAt: string };
 
 // Kept on globalThis so it survives Next.js dev reloads. Only filled when ENABLE_TEST_ROUTES=true.
@@ -22,7 +22,7 @@ export async function sendEmail(input: {
   subject: string;
   react: ReactElement;
   token?: string;
-}): Promise<void> {
+}): Promise<boolean> {
   if (env.ENABLE_TEST_ROUTES) {
     testOutbox.set(input.to, {
       to: input.to,
@@ -31,6 +31,7 @@ export async function sendEmail(input: {
       token: input.token ?? null,
       sentAt: new Date().toISOString(),
     });
+    return true;
   }
 
   try {
@@ -41,8 +42,13 @@ export async function sendEmail(input: {
       subject: input.subject,
       react: input.react,
     });
-    if (error) logger.error({ type: input.type, error }, "email send failed");
+    if (error) {
+      logger.error({ type: input.type, error }, "email send failed");
+      return false;
+    }
+    return true;
   } catch (err) {
     logger.error({ type: input.type, err }, "email send failed");
+    return false;
   }
 }
